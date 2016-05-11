@@ -1,0 +1,113 @@
+// FunnyGame
+import java.util.Scanner;
+
+public class FunnyGame
+{
+    static int aer;
+    static int ini;
+    static int NodosGanadores[];
+    static int Nodos[][];
+    static int NodosJugadores[];
+
+    public static void main(String [ ] args){
+        Recibir();
+        CrearCaminoGanador();
+        RetornarGanador();
+    }
+
+    public static void Recibir(){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("");
+        aer = sc.nextInt();
+        ini = sc.nextInt()-1;
+        if(ini > aer || ini < 0){
+            System.exit(0) ;
+        }
+        if(aer > 1000){
+            System.exit(0);
+        }
+        Nodos = new int[aer][aer];
+        NodosGanadores = new int[aer];
+        int NodosParaContar[][]=new int[aer][aer];
+        NodosJugadores = new int [aer];
+        for(int i = 0; i < aer-1; i++){
+            int de = sc.nextInt();
+            int hasta = sc.nextInt();
+            Nodos[hasta-1][de-1] = 1;
+            Nodos[de-1][hasta-1] = 1;
+            NodosParaContar[de-1][hasta-1] = 1;
+        }
+        AnalizarJugada(ini,NodosParaContar,1);
+    }
+
+    public static void AnalizarJugada(int pos, int mtrz[][],int jugador){
+        NodosJugadores[pos] = jugador;
+        if(NodoVacio(pos,mtrz) != true){
+            for(int i=0;i<mtrz.length;i++){
+                if(mtrz[pos][i] == 1 || mtrz[i][pos] == 1){
+                    AnalizarJugada(i,BorrarNodo(i,pos,mtrz),jugador+1);
+                }
+            }
+            return;
+        }
+        else{
+            if((jugador % 2) == 0){
+                NodosGanadores[pos] = 1;
+                return;
+            }else{
+                NodosGanadores[pos] = 2;
+                return;
+            }
+        }
+    }
+
+    public static void CrearCaminoGanador(){
+        for(int k = 0; k<aer-1; k++){
+            for(int i = 0; i < NodosGanadores.length; i++){
+                if(NodosGanadores[i] != 0){
+                    for(int j = 0; j < NodosGanadores.length; j++){
+                        if(Nodos[i][j] == 1 && NodosJugadores[j]<NodosJugadores[i] && j!=ini){
+                            if(NodosGanadores[j]==0){
+                                NodosGanadores[j] = NodosGanadores[i];
+                                break;
+                            }else{
+                                if(NodosJugadores[j]%2 == NodosGanadores[i]%2 && j!=ini){
+                                    NodosGanadores[j] = NodosGanadores[i];
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static boolean NodoVacio(int pos, int mtrz[][]){
+        boolean cont = true;
+        for(int i = 0; i < mtrz.length; i++){
+            if(mtrz[pos][i] == 1||mtrz[i][pos] == 1){
+                cont = false;
+                return cont;
+            }
+        }
+        return cont;
+    }
+
+    public static int[][] BorrarNodo(int i,int pos, int mtrz[][]){
+        mtrz[pos][i] = 0;
+        mtrz[i][pos] = 0;
+        return mtrz;
+    }
+
+    public static void RetornarGanador(){
+        for(int i = 0; i < NodosGanadores.length; i++){
+            if(NodosGanadores[i]==1 && ((Nodos[ini][i] == 1) || (Nodos[i][ini] == 1))){
+                i += 1;
+                System.out.println("First player wins flying to airport " + i);
+                return;
+            }
+        }
+        System.out.println("First player loses");  
+    }
+}
